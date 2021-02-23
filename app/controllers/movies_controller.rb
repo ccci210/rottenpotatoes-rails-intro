@@ -10,7 +10,10 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
-    # check which class 
+    @all_ratings = ['G', 'PG', 'PG-13','R']
+    @ratings_to_show = []
+    
+    # check selected header
     if params[:sort] == 'title'
       @title_h='hilite'
       @movies = Movie.order('title')
@@ -19,6 +22,13 @@ class MoviesController < ApplicationController
       @release_h='hilite'
       @movies = Movie.order('release_date')
     end
+    
+  if params[:ratings]
+      @ratings_to_show = params[:ratings] #check selected rating
+      puts "here"
+      puts @ratings_to_show.keys
+      @movies = Movie.where({rating: @ratings_to_show.keys})
+  end 
     
   end
 
