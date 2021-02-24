@@ -8,32 +8,52 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-  def index
+ def index
     @movies = Movie.all
-    @all_ratings = ['G', 'PG', 'PG-13','R']
-    @ratings_to_show = []
+    @all_ratings =  ['G', 'PG', 'PG-13','R']
+    @ratings_to_show  = @all_ratings
     
-    # check selected header
-    if params[:sort] == 'title'
-      @title_h='hilite'
-      @movies = Movie.order('title')
+    puts @ratings_to_show 
+    #if no rating 
+    if session[:ratings].nil?
+      session[:ratings] =@all_ratings
     end
+    if session[:sort].nil?
+       session[:sort] ='id' #default by id
+    end
+    
+     if params[:sort] == 'title'
+      @title_h = 'hilite'
+      @ordering='title'
+      #@movies = Movie.where({rating: @ratings_to_show }).order('title')
+      session[:sort]=params[:sort]
+    end
+    
     if params[:sort] == 'release_date'
-      @release_h='hilite'
-      @movies = Movie.order('release_date')
+      @release_h = 'hilite'
+      @ordering='release_date'
+      #@movies = Movie.where({rating: @ratings_to_show }).order('release_date')
+      session[:sort]=params[:sort]
+    #  @movies = Movie.order(params[:sort]).all
     end
+    if params[:ratings]
+      @ratings_to_show  = params[:ratings].keys #check selected rating
+      puts @ratings_to_show 
+      session[:ratings] = @ratings_to_show  
+    elsif session[:ratings]
+      @ratings_to_show  = session[:ratings]
+    end 
     
-  if params[:ratings]
-      @ratings_to_show = params[:ratings] #check selected rating
-      puts "here"
-      puts @ratings_to_show.keys
-      @movies = Movie.where({rating: @ratings_to_show.keys})
-  end 
+    if session[:ratings]
+      @movies = Movie.where({rating: @ratings_to_show }).order(session[:sort])  
+    end
+  
+   
+    @movies = Movie.where({rating: @ratings_to_show }).order(@ordering)
     
   end
-
   def new
-    # default: render 'new' template
+     # default: render 'new' template
   end
 
   def create
