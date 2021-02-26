@@ -43,13 +43,13 @@ class MoviesController < ApplicationController
       redirect_to :sort => @sort, :ratings => @ratings_to_show and return
     end
    
-  # if params[:ratings]
-  #     @ratings_to_show = params[:ratings] #check selected rating
-  #     puts "here"
-  #     puts @ratings_to_show.keys
-  #     @movies = Movie.where({rating: @ratings_to_show.keys})
-  #     session[:ratings] = @ratings_to_show
-  # end 
+  if params[:ratings]
+      @ratings_to_show = params[:ratings] #check selected rating
+      puts "here"
+      puts @ratings_to_show.keys
+      @movies = Movie.where({rating: @ratings_to_show.keys}).order(@sort)
+      session[:ratings] = @ratings_to_show
+  end 
 
   end
   def new
