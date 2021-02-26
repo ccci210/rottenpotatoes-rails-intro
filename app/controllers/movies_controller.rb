@@ -8,49 +8,49 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
- def index
-    @movies = Movie.all
-    @all_ratings =  ['G', 'PG', 'PG-13','R']
-    @ratings_to_show  = @all_ratings
-    
-    puts @ratings_to_show 
-    #if no rating 
-    if session[:ratings].nil?
-      session[:ratings] =@all_ratings
-    end
-    if session[:sort].nil?
-       session[:sort] ='id' #default by id
-    end
-    
-     if params[:sort] == 'title'
-      @title_h = 'hilite'
-      @ordering='title'
-      #@movies = Movie.where({rating: @ratings_to_show }).order('title')
-      session[:sort]=params[:sort]
-    end
-    
-    if params[:sort] == 'release_date'
-      @release_h = 'hilite'
-      @ordering='release_date'
-      #@movies = Movie.where({rating: @ratings_to_show }).order('release_date')
-      session[:sort]=params[:sort]
-    #  @movies = Movie.order(params[:sort]).all
-    end
-    if params[:ratings]
-      @ratings_to_show  = params[:ratings].keys #check selected rating
-      puts @ratings_to_show 
-      session[:ratings] = @ratings_to_show  
-    elsif session[:ratings]
-      @ratings_to_show  = session[:ratings]
-    end 
-    
-    if session[:ratings]
-      @movies = Movie.where({rating: @ratings_to_show }).order(session[:sort])  
-    end
+ 
   
-   
-    @movies = Movie.where({rating: @ratings_to_show }).order(@ordering)
+  def index
+    @movies = Movie.all
+    @all_ratings = ['G', 'PG', 'PG-13','R']
+    @ratings_to_show =  {}
+    @all_ratings_hash= {'G'=>1, 'PG'=>1, 'PG-13'=>1, 'R'=>1}
     
+    puts params[:ratings]
+    @sort = params[:sort] || session[:sort]
+    @ratings_to_show = params[:ratings] || session[:ratings] || @all_ratings_hash
+    # check selected header
+    if params[:sort] == 'title'
+      @sort='title'
+      # @ratings_to_show = params[:ratings] || session[:ratings] || @all_ratings_hash
+      @title_h='hilite'
+      @movies = Movie.where({rating: @ratings_to_show.keys}).order('title')
+      session[:sort]=params[:sort]
+    end
+    if params[:sort] == 'release_date'
+      @sort='release_date'
+      @release_h='hilite'
+      @movies = Movie.where({rating: @ratings_to_show.keys}).order('release_date') #Movie.order('release_date')
+      session[:sort]=params[:sort]
+    end
+        #@movies = Movie.where({rating: @ratings_to_show.keys}).order('release_date')
+    if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
+      session[:sort] = @sort
+      session[:ratings] =@ratings_to_show
+      puts "red"
+      puts @sort
+      puts @ratings_to_show
+      redirect_to :sort => @sort, :ratings => @ratings_to_show and return
+    end
+   
+  # if params[:ratings]
+  #     @ratings_to_show = params[:ratings] #check selected rating
+  #     puts "here"
+  #     puts @ratings_to_show.keys
+  #     @movies = Movie.where({rating: @ratings_to_show.keys})
+  #     session[:ratings] = @ratings_to_show
+  # end 
+
   end
   def new
      # default: render 'new' template
